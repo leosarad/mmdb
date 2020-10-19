@@ -1,0 +1,52 @@
+<div class="container">
+     <a href="create-collection">Create Collection</a>
+</div>
+<div class="container collections">
+     <h3>Collections</h3>
+     <div class="collection-list">
+     </div>
+</div>
+
+     <div class="container popular-movies">
+     <h3>Popular Movies</h3>
+     <div class="popular-movies-list">
+     </div>
+</div>
+<script>
+     // Fetch Data
+     const fetchData = async (url)=>{
+          let response = await fetch(url)
+          const  data = await response.json()
+          console.log(data)
+          return data
+     }
+
+     const setCollections = async ()=>{
+         const collections = await fetchData('/get-collections')
+         const collectionContainer = document.querySelector('.collection-list')
+         collections.collections.forEach(collection=>{
+              const li = document.createElement('li')
+              const a = document.createElement('a')
+              a.innerText=collection.name
+              li.append(a)
+              collectionContainer.append(li)
+         })
+     }
+
+     const setPopularMovies = async ()=>{
+         const popularMovies = await fetchData('/movie/popular')
+         const popularMoviesContainer = document.querySelector('.popular-movies-list')
+         popularMovies.movies.forEach(movie=>{
+              const li = document.createElement('li')
+              const a = document.createElement('a')
+              a.setAttribute('href',`/movie/${movie.id}`)
+              a.innerText=movie.title
+              li.append(a)
+              popularMoviesContainer.append(li)
+         })
+     }
+
+     setCollections()
+     setPopularMovies()
+</script>
+</html>

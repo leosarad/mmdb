@@ -1,0 +1,57 @@
+<style>
+     .container-signin{
+          display: -ms-flexbox;
+          display: -webkit-box;
+          display: flex;
+          -ms-flex-align: center;
+          -ms-flex-pack: center;
+          -webkit-box-align: center;
+          align-items: center;
+          -webkit-box-pack: center;
+          justify-content: center;
+          padding-top: 40px;
+          padding-bottom: 40px;
+          background-color: ##f9f9f9;
+     }
+     input{
+          margin: 8px
+     }
+</style>
+<div class="container-signin text-center">
+     <form class="form-signin" id='signin'>
+          <h3 class="h3 mb-3 font-weight-normal">Please sign in</h3>
+          <p>Dont own an account!!! <a href="/signup">Sign up</a></p>
+          <label for="inputEmail" class="sr-only">Email address</label>
+          <input name='email' type="email" id="email" class="form-control" placeholder="Email address" autofocus>
+          <label for="inputPassword" class="sr-only">Password</label>
+          <input name='password' type="password" id="password" class="form-control" placeholder="Password" >
+          <div class="checkbox mb-3">
+          <label>
+               <input type="checkbox" value="remember-me"> Remember me
+          </label>
+          </div>
+          <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+     </form>
+</div>
+<script>
+     let form = document.getElementById('signin')
+     form.onsubmit =async (e)=>{
+          e.preventDefault()
+          let user = {
+               email: form.email.value,
+               password: form.password.value
+          }
+          let response = await fetch('/signin', {
+               method: 'POST',
+               body: JSON.stringify(user),
+               headers: {
+                    'Content-Type': 'application/json',
+               },
+          });
+          const  data = await response.json();
+          console.log(data)
+         if(data.user){
+              location.href = '/'
+         }
+     }
+</script>

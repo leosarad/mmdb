@@ -1,0 +1,62 @@
+<style>
+     .card{
+          margin: 8px;
+     }
+     .popular-movies .card{
+          max-width: 200px;
+          min-height: 250px;
+     }
+</style>
+
+{{#if user}}
+     <div class='collections'>
+          <h3 >Collections</h3>
+          <div><a href="">Create Collection</a></div>
+          <div class="slider"></div>
+     </div>
+{{else}}
+     <div>No Collections, <a href="">Create One</a></div>
+{{/if}}
+<div class='popular-movies '>
+     <h3 >Popular Movies</h3>
+     <div class="slider">
+     </div>
+</div>
+<script>
+     
+     const setMovieCards = async ()=>{
+          let slider = document.querySelector('.popular-movies .slider')
+          const data = await fetchData('/movie/popular')
+          data.movies.forEach(movie=>{
+               let card = document.createElement('div')
+               card.innerHTML = `
+                    <div class="card-body">
+                              <h5 class="card-title">${movie.title}</h5>
+                              <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                              <a href="/movie/${movie.id}"" class="btn btn-sm btn-success">See More</a>
+                         </div>
+               `
+               card.setAttribute('class','card')
+               slider.appendChild(card)
+          })
+     }
+
+     const setCollectionCards = async ()=>{
+          let slider = document.querySelector('.collections .slider')
+          const data = await fetchData('/get-collections')
+          data.collections.forEach(collection=>{
+               let card = document.createElement('div')
+               card.innerHTML = `
+                    <div class="card-body">
+                              <h5 class="card-title">${collection.name}</h5>
+                         </div>
+               `
+               card.setAttribute('class','card')
+               slider.appendChild(card)
+          })
+     }
+
+     setSlider(setMovieCards , '.popular-movies .slider')   
+     setSlider(setCollectionCards , '.collections .slider')   
+
+</script>

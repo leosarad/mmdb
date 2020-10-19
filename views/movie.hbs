@@ -1,0 +1,78 @@
+<div class="conatiner">
+     {{#if movie}}
+          <div class="container movie">
+          <h3>{{movie.title}}</h3>
+          {{#if user}}
+           <p>
+               <a class="btn btn-sm btn-primary" data-toggle="modal" data-target="#exampleModalCenter" onclick="getCollection()">Add to collection</a>
+          </p>
+          {{/if}}
+          <div class="collection-list">
+               <div class="modal fade" id="exampleModalCenter" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-sm" role="document">
+                         <div class="modal-content">
+                              <div class="modal-header">
+                              <h5 class="modal-title" id="exampleModalLongTitle">Collestions</h5>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                   <span aria-hidden="true">&times;</span>
+                              </button>
+                              </div>
+                              <form id="addMovie">
+                              <div class="modal-body"> No Collections, Create One</div>
+                              <div class="modal-footer">
+                                   <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                   <input type="submit" class="btn btn-primary" value="Add"/>
+                              </div>
+                              </form>
+                         </div>
+                    </div>
+               </div>
+          </div>
+          <p>{{movie.overview}}</p>
+     </div>
+     {{/if}}
+</div>
+<script>
+     let movieId = window.location.pathname.substr(7)
+
+     const addToCollection = async (movieId)=>{
+          const res = await fetchData(`/addToCollection/${movieId}/${collection._id}`)
+     }
+
+     const getCollection = async ()=>{
+          let data = await fetchData('/get-collections')
+          let modal = document.querySelector('.modal-body')
+          modal.innerHTML = ""
+          data.collections.forEach( collection => {
+               let list = document.createElement('div')
+               list.innerHTML = `<div class="form-check">
+                                   <input name='${collection._id}' type="checkbox" class="form-check-input" id="${collection._id}">
+                                   <label class="form-check-label" for="${collection._id}">${collection.name}</label>
+                              </div>`
+               modal.append(list)
+          })
+     }
+
+     let addMovieForm = document.querySelector('#addMovie')
+     addMovieForm.onsubmit = async (e)=>{
+          e.preventDefault()
+          let formData = new FormData(addMovieForm)
+          let collections =[]
+          for(let [name, value] of formData) {
+               collections.push(name)
+          }
+          let data = {
+               movieId,
+               collections
+          }
+         let response = await fetch(`/addToCollections/${movieId}`, {
+               method: 'POST',
+               body: JSON.stringify(data),
+               headers: {
+                    'Content-Type': 'application/json',
+               }
+          });
+          let res = await response.json()
+          console.log(res)
+     }
+</script>

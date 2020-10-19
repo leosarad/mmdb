@@ -1,0 +1,62 @@
+<style>
+     .container-signup{
+          display: -ms-flexbox;
+          display: -webkit-box;
+          display: flex;
+          -ms-flex-align: center;
+          -ms-flex-pack: center;
+          -webkit-box-align: center;
+          align-items: center;
+          -webkit-box-pack: center;
+          justify-content: center;
+          padding-top: 40px;
+          padding-bottom: 40px;
+          background-color: #f9f9f9;
+     }
+     input{
+          margin: 8px
+     }
+</style>
+<div class="container-signup text-center">
+     <form class="form-signup" id='signup'>
+          <h3 class="h3 mb-3 font-weight-normal">Please sign up</h3>
+          <p>Already own an account!!! <a href="/signin">Sign in</a></p>
+          <label name="username" for="username" class="sr-only">Username</label>
+          <input name='username' type="text" id="username" class="form-control" placeholder="Username" autofocus>
+          <label name="email" for="email" class="sr-only">Email address</label>
+          <input name='email' type="email" id="email" class="form-control" placeholder="Email address">
+          <label name="password" for="assword" class="sr-only">Password</label>
+          <input name='password' type="password" id="password" class="form-control" placeholder="Password" >
+          <div class="checkbox mb-3">
+          <label>
+               <input type="checkbox" value="remember-me"> Remember me
+          </label>
+          </div>
+          <button class="btn btn-lg btn-primary btn-block" type="submit">Sign in</button>
+     </form>
+</div>
+<script>
+     let form = document.getElementById('signup')
+     form.onsubmit =async (e)=>{
+          e.preventDefault()
+          let user = {
+               username: form.username.value,
+               email: form.email.value,
+               password: form.password.value
+          }
+          console.log(user)
+
+          let response = await fetch('/signup', {
+               method: 'POST',
+               body: JSON.stringify(user),
+               headers: {
+                    'Content-Type': 'application/json',
+               },
+          });
+          const  data = await response.json();
+          console.log(data)
+          if(data.user){
+              location.href = '/'
+          }
+     }
+</script>
