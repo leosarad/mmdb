@@ -1,52 +1,119 @@
-<div class="container">
-     <a href="create-collection">Create Collection</a>
-</div>
-<div class="container collections">
-     <h3>Collections</h3>
-     <div class="collection-list">
-     </div>
-</div>
+<style>
+     .collection-cards{
+          display: flex;
+          flex-wrap: wrap;
+     }
+     .collection-cards .card{
+          border: 1px solid #111
+     }
+     .card{
+          margin: 8px;
+     }
+     .popular-movies .card{
+          max-width: 200px;
+          min-height: 250px;
+     }
+</style>
 
-     <div class="container popular-movies">
-     <h3>Popular Movies</h3>
-     <div class="popular-movies-list">
+{{#if user}}
+     <div class='collections'>
+          <h3 >My Collections</h3>
+          <div>
+               <a href="#" data-toggle="modal" data-target="#createCollectionModal" >Create New Collection</a>
+          </div>
+          <div class="collection-cards"></div>
+          <div class="modal fade" id="createCollectionModal" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered modal-md" role="document">
+                         <div class="modal-content">
+                              <div class="modal-header">
+                              <h5 class="modal-title" id="exampleModalLongTitle">Create new collection</h5>
+                              <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                   <span aria-hidden="true">&times;</span>
+                              </button>
+                              </div>
+                              <form id="createCollection">
+                              <div class="modal-body">
+                                    <div class="form-group">
+                                        <input type="text" class="form-control" name="name" id="name" placeholder="Collection Name">
+                                   </div>
+                                   <div class="form-group">
+                                        <input type="text" class="form-control" name="description" id="description" placeholder="Collection Descriptiion">
+                                   </div>
+                              </div>
+                              <div class="modal-footer">
+                                   <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                                   <input type="submit" class="btn btn-homeprimary" value="Create" />
+                              </div>
+                              </form>
+                         </div>
+                    </div>
+               </div>
+     </div>
+{{else}}
+     <div>No Collections, <a href="">Create One</a></div>
+{{/if}}
+<div class='popular-movies '>
+     <h3 >Popular Movies</h3>
+     <div class="slider">
      </div>
 </div>
 <script>
-     // Fetch Data
-     const fetchData = async (url)=>{
-          let response = await fetch(url)
-          const  data = await response.json()
-          console.log(data)
-          return data
+
+     let createCollectionForm = document.getElementById('createCollection')
+     createCollectionForm.onsubmit = async (e)=>{
+          e.preventDefault()
+          let collection = {
+               name: createCollectionForm.name.value,
+               description: createCollectionForm.description.value
+          }
+          let response = await fetch('/create-collection', {
+               method: 'POST',
+               body: JSON.stringify(collection),
+               headers: {
+                    'Content-Type': 'application/json',
+               },
+          })
+          const  data = await response.json();
+          let createCollectionModal = document.getElementById('createCollectionModal')
+          $('#createCollectionModal').modal('hide')
+          setCollectionCards()
+     }
+     
+     const setMovieCards = async ()=>{
+          let slider = document.querySelector('.popular-movies .slider')
+          const data = await fetchData('/movie/popular')
+          data.movies.forEach(movie=>{
+               let card = document.createElement('div')
+               card.innerHTML = `
+                    <div class="card-body">
+                              <h5 class="card-title">${movie.title}</h5>
+                              <p class="card-text">With supporting text below as a natural lead-in to additional content.</p>
+                              <a href="/movie/${movie.id}"" class="btn btn-sm btn-success">See More</a>
+                         </div>
+               `
+               card.setAttribute('class','card')
+               slider.appendChild(card)
+          })
      }
 
-     const setCollections = async ()=>{
-         const collections = await fetchData('/get-collections')
-         const collectionContainer = document.querySelector('.collection-list')
-         collections.collections.forEach(collection=>{
-              const li = document.createElement('li')
-              const a = document.createElement('a')
-              a.innerText=collection.name
-              li.append(a)
-              collectionContainer.append(li)
-         })
+     const setCollectionCards = async ()=>{
+          let collectionCards = document.querySelector('.collection-cards')
+          collectionCards.innerHTML=""
+          const data = await fetchData('/get-collections')
+          data.collections.forEach(collection=>{
+               let card = document.createElement('div')
+               card.innerHTML = `
+                    <div class="card-body">
+                              <h5 class="card-title">${collection.name}</h5>
+                              <p>${collection.description}</p>
+                         </div>
+               `
+               card.setAttribute('class','card')
+               collectionCards.appendChild(card)
+          })
      }
 
-     const setPopularMovies = async ()=>{
-         const popularMovies = await fetchData('/movie/popular')
-         const popularMoviesContainer = document.querySelector('.popular-movies-list')
-         popularMovies.movies.forEach(movie=>{
-              const li = document.createElement('li')
-              const a = document.createElement('a')
-              a.setAttribute('href',`/movie/${movie.id}`)
-              a.innerText=movie.title
-              li.append(a)
-              popularMoviesContainer.append(li)
-         })
-     }
+     setSlider(setMovieCards , '.popular-movies .slider')   
+     setCollectionCards()  
 
-     setCollections()
-     setPopularMovies()
 </script>
-</html>

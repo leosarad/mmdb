@@ -1,0 +1,47 @@
+ <style>
+      .slide-card{
+           display: flex !important;
+           flex-direction: row !important;
+      }
+      .details{
+           padding: 16px;
+           box-sizing: border-box;
+      }
+      .thumbnail img{
+           object-fit: cover;
+      }
+ </style>
+ <div class='now-playing'>
+     <h3 >Now Playing</h3>
+     <div class="single-slider">
+
+     </div>
+</div>
+<script>
+
+     const setSliderCard = async ()=>{
+          console.log("Card")
+          let slider = document.querySelector('.now-playing .single-slider')
+          const data = await fetchData('/movie/now_playing')
+          data.movies.forEach(movie=>{
+               let card = document.createElement('div')
+               card.innerHTML = `
+                    <div class="slide-card">
+                         <div class="thumbnail">
+                              <img src="https://image.tmdb.org/t/p/w500/${movie.backdrop_path}" alt="">
+                         </div>
+                         <div class="details text-center">
+                              <h4>${movie.title}</h4>
+                              <p>${movie.overview.substr(0,80)}...</p>
+                              <a class="btn btn-primary btn-sm" href="/movie/${movie.id}">See more</a>
+                         </div>
+                    </div>
+               `
+               card.setAttribute('class','card')
+               slider.appendChild(card)
+          })
+     }
+ 
+     setSingleSlider(setSliderCard, '.now-playing .single-slider')
+
+</script>

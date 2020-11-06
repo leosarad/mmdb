@@ -1,9 +1,78 @@
-<div class="conatiner">
-     {{#if movie}}
-          <div class="container movie">
+<style>
+     .banner{
+          background-image: url("https://image.tmdb.org/t/p/w500/{{movie.backdrop_path}}");
+          background-color: rgba(0, 0, 0, 0.473);
+          color: #fff;
+          background-size: cover;
+          background-position: center;
+          height: 420px;
+          background-blend-mode: multiply;
+          display: flex;
+          flex-direction: column;
+          justify-content: center;
+     }
+     .banner-details{
+          width:70%
+     }
+     .movie-menu{
+          margin: 12px;
+     }
+     .nav-tabs {
+          border-bottom: 1px solid #999;
+     }
+     .nav-tabs .nav-link.active{
+          border-color: #999 #999 #fff;    
+     }
+     #reviewForm{
+          display: flex;
+          margin: auto;
+     }
+     #reviewForm button{
+          margin: auto 5px;
+     }
+     .similars img{
+          width: 80px;
+     }
+     .similars>div, .casts>div{
+          display: flex;
+          align-items: center;
+     }
+     .reviews,.similars,.casts{
+          min-height: 160px;
+          max-height: 280px;
+          overflow-y: scroll;
+     }
+     .reviewBox {
+          margin: 8px;
+          background: rgb(240, 239, 239);
+          border-radius: 8px;
+          padding: 8px;
+     }
+     .reviewer{
+          font-weight: bold
+     }
+     .similars, .casts{
+          padding: 10px;
+     }
+     .similars>div, .casts>div{
+          width: 90%;
+          margin: 8px 0;
+     }
+     .similars>div>div , .casts>div>div{
+          padding: 10px;
+     }
+     .casts img{
+          height: 100px;
+          width:100px;
+          border-radius: 50%;
+     }
+</style>
+{{#if movie}}
+<div class="banner">
+     <div class="container banner-details">
           <h3>{{movie.title}}</h3>
           {{#if user}}
-           <p>
+          <p>
                <a class="btn btn-sm btn-primary" data-toggle="modal" data-target="#exampleModalCenter" onclick="getCollection()">Add to collection</a>
           </p>
           {{/if}}
@@ -21,7 +90,7 @@
                               <div class="modal-body"> No Collections, Create One</div>
                               <div class="modal-footer">
                                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                                   <input type="submit" class="btn btn-primary" value="Add"/>
+                                   <input type="submit" class="btn btn-homeprimary" value="Add"/>
                               </div>
                               </form>
                          </div>
@@ -30,8 +99,44 @@
           </div>
           <p>{{movie.overview}}</p>
      </div>
-     {{/if}}
 </div>
+<div class="movie-menu">
+    <ul class="nav nav-tabs mb-2" id="nav-tab" role="tablist">
+          <li class="nav-item">
+                <a class="nav-link active" id="pills-reviews-tab" data-toggle="pill" href="#pills-reviews" role="tab" aria-controls="pills-reviews" aria-selected="true">Reviews</a>
+          </li>
+          <li class="nav-item">
+               <a class="nav-link" id="pills-similars-tab" data-toggle="pill" href="#pills-similars" role="tab" aria-controls="pills-similars" aria-selected="false">Similars</a>
+          </li>
+          <li class="nav-item">
+               <a class="nav-link" id="pills-cast-tab" data-toggle="pill" href="#pills-cast" role="tab" aria-controls="pills-cast" aria-selected="false">Casts</a>
+          </li>
+     </ul>
+     <div class="tab-content" id="pills-tabContent">
+          <div class="tab-pane fade show active" id="pills-reviews" role="tabpanel" aria-labelledby="pills-reviews-tab"> 
+               <h3>Reviews</h3>
+               <form id="reviewForm" action="" >
+                    <input name='review' type="text" id="review" class="form-control" placeholder="review here" >
+                    <button class="btn btn-sm btn-primary " type="submit">submit</button>
+               </form>
+               <div class="reviews">
+                    <div class="reviewBox">
+                         <div class='reviewer'>TheArkein: </div> <div>This is the best filem</div>
+                    </div>
+               </div>
+          </div>
+          <div class="tab-pane fade" id="pills-similars" role="tabpanel" aria-labelledby="pills-similars-tab">
+               <h3>Similars</h3>
+               <div class="similars"></div>
+          </div>
+          <div class="tab-pane fade" id="pills-cast" role="tabpanel" aria-labelledby="pills-cast-tab">
+               <h3>Cast</h3>
+               <div class="casts"></div>
+          </div>
+     </div>
+</div>
+{{/if}}
+
 <script>
      let movieId = window.location.pathname.substr(7)
 
@@ -52,6 +157,65 @@
                modal.append(list)
           })
      }
+
+     const setTabs = async ()=>{
+            
+          let resSimilar = await fetchData(`/movie/${movieId}/similar`)
+          let resCredits = await fetchData(`/movie/${movieId}/credits`)
+
+          let similars = resSimilar.similars.results
+          let casts = resCredits.credits.cast
+          let similarsBox = document.querySelector('.similars')
+          let castsBox = document.querySelector('.casts')
+          let castssBox = document.querySelector('.similars')
+
+
+          similars.forEach(similar=>{
+               let card = document.createElement('div')
+               card.innerHTML = `
+                         <img src="https://image.tmdb.org/t/p/w200/${similar.poster_path}"></img>
+                         <div>
+                              <h5><a href="/movie/${similar.id}">${similar.title}</a></h5>
+                              <div>
+                                   ${similar.overview.substr(0,100)}...
+                              </div>
+                         </div>
+                    `
+               similarsBox.appendChild(card)
+          })
+
+          casts.forEach(cast=>{
+               let card = document.createElement('div')
+               console.log(cast)
+               card.innerHTML = `
+                         <img src="https://image.tmdb.org/t/p/w200/${cast.profile_path}"></img>
+                         <div>
+                              <h5>${cast.name}</h5>
+                              <div>${cast.character}</div>
+                         </div>
+                    `
+               castsBox.appendChild(card)
+          })
+
+     }
+
+     $(document).ready(async ()=>{
+             setTabs()
+
+          let res = await fetchData(`/get-reviews/${movieId}`)
+          let reviews =res.reviews
+          let reviewsBox = document.querySelector(".reviews")
+          reviews.forEach(review=>{
+               let reviewBox = document.createElement('div')
+               reviewBox.setAttribute('class','reviewBox')
+               reviewBox.innerHTML = `
+                              <div class='reviewer'>${review.username}: </div> 
+                              <div>${review.review}</div>
+               `
+               reviewsBox.appendChild(reviewBox)
+          })
+        
+     })
 
      let addMovieForm = document.querySelector('#addMovie')
      addMovieForm.onsubmit = async (e)=>{
@@ -74,5 +238,38 @@
           });
           let res = await response.json()
           console.log(res)
+     }
+
+     let reviewForm = document.getElementById("reviewForm")
+     reviewForm.onsubmit = async (e)=>{
+          e.preventDefault()
+          let username =  '{{user.username}}'
+          let review = reviewForm.review.value
+          let data = {
+               review,
+               movieId,
+               username,
+          }
+          let response = await fetch(`/create-review`, {
+               method: 'POST',
+               body: JSON.stringify(data),
+               headers: {
+                    'Content-Type': 'application/json',
+               }
+          });
+          let res = await response.json()
+          console.log(res)
+
+          if(!res.hasOwnProperty('errors')){
+               let review = res.review
+               let reviews = document.querySelector(".reviews")
+               let reviewBox = document.createElement('div')
+               reviewBox.setAttribute('class','reviewBox')
+               reviewBox.innerHTML = `
+                              <div class='reviewer'>${review.username}: </div> 
+                              <div>${review.review}</div>
+               `
+               reviews.appendChild(reviewBox)
+          }
      }
 </script>

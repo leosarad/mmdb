@@ -33,7 +33,7 @@ const checkUser = (req, res, next)=>{
           })
      } else{
           res.locals.user = null
-          next(0)
+          next()
      }
 }
 
